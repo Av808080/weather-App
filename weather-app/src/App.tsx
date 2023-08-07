@@ -1,12 +1,29 @@
 import { ChangeEvent, FormEvent, useState } from 'react'
+import axios from 'axios'
+//Type
+import { Data } from './Types/Data'
+
+const API_KEY = "5a4e03723d22ebc949c51818dce21b9a";
+const BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 const App = () => {
-  const [data, setData] = useState({})
+  const [data, setData] = useState({} as Data)
   const [city, setCity] = useState("")
-  const submitHandler = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
 
+  const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const { data } = await axios.get(`${BASE_URL}?q=${city}&units=metric&appid=${API_KEY}`)
+      setData({
+        temp: data.main.temp, icon: `http://openweathermap.org/img/w/${data.weather[0].icon}.png`
+        , country: data.sys.country, description: data.weather[0].description, error: false
+      })
+    }
+    catch {
+      setData({ ...data, error: true })
+    }
   }
+  
   const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     setCity(e.target.value)
   }
